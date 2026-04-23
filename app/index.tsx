@@ -1,24 +1,50 @@
 import { View, Text, StyleSheet } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import * as Location from "expo-location";
 
 export default function Home() {
-  // 🔹 Estado del clima (podés cambiarlo para probar)
-  const [clima, setClima] = useState("Soleado");
+  const [clima, setClima] = useState("Cargando...");
+  const [temperatura, setTemperatura] = useState(0);
+  const [tempMin, setTempMin] = useState(0);
+  const [tempMax, setTempMax] = useState(0);
+  const [ciudad, setCiudad] = useState("Cargando...");
 
-  const temperatura = 24;
-  const ciudad = "Buenos Aires";
+  useEffect(() => {
+    const obtenerClima = async () => {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") return;
 
-  // 🔹 Función que devuelve el ícono según el clima
+      const location = await Location.getCurrentPositionAsync({});
+      const { latitude, longitude } = location.coords;
+
+      const API_KEY = "d13bad036f70012e096e5e01f257ef89";
+
+      const res = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&lang=es&appid=${API_KEY}`
+      );
+
+      const data = await res.json();
+
+      setTemperatura(Math.round(data.main.temp));
+      setTempMin(Math.round(data.main.temp_min));
+      setTempMax(Math.round(data.main.temp_max));
+      setCiudad(data.name);
+      setClima(data.weather[0].main);
+    };
+
+    obtenerClima();
+  }, []);
+
   const obtenerIcono = () => {
     switch (clima.toLowerCase()) {
-      case "soleado":
+      case "clear":
         return "sun";
-      case "nublado":
+      case "clouds":
         return "cloud";
-      case "lluvia":
+      case "rain":
         return "cloud-rain";
-      case "nieve":
+      case "snow":
         return "cloud-snow";
       default:
         return "sun";
@@ -32,6 +58,10 @@ export default function Home() {
       <Feather name={obtenerIcono()} size={80} color="#000" />
 
       <Text style={styles.temp}>{temperatura}°</Text>
+
+      <Text style={styles.minMax}>
+        Min: {tempMin}° | Max: {tempMax}°
+      </Text>
 
       <Text style={styles.descripcion}>{clima}</Text>
     </View>
@@ -54,6 +84,11 @@ const styles = StyleSheet.create({
     fontSize: 64,
     fontWeight: "bold",
     marginTop: 10,
+  },
+  minMax: {
+    fontSize: 16,
+    color: "#777",
+    marginTop: 5,
   },
   descripcion: {
     fontSize: 18,
