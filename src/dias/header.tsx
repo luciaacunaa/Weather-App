@@ -15,6 +15,7 @@ export default function Cabecera({
   onPrev,
 }: Props) {
   const diaActual = dias[diaIndex];
+  console.log(diaActual)
 
   return (
     <View style={styles.header}>
@@ -23,11 +24,9 @@ export default function Cabecera({
       </TouchableOpacity>
 
       <Text style={styles.fecha}>
-        {diaIndex === 0
-          ? formatearFecha(new Date())
-          : diaActual
-            ? formatearFecha(new Date(diaActual.dt_txt))
-            : '...'}
+  {diaActual
+    ? formatearFecha(new Date(diaActual.date + 'T12:00:00'))
+    : '...'}
       </Text>
 
       <TouchableOpacity onPress={onNext}>

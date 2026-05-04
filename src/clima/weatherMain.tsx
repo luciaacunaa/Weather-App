@@ -35,7 +35,7 @@ export default function ClimaPrincipal({
             ? `${temperatura}°`
             : '...'
           : diaActual
-            ? `${Math.round(diaActual.main.temp)}°`
+            ? `${Math.round(diaActual.temp_c)}°`
             : '...'}
       </Text>
 
